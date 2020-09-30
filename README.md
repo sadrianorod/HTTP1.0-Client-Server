@@ -8,8 +8,11 @@ Crie um diretório e, via terminal, vá até ele e escreva:
 
 Será criado um vagrant.file no diretório, depois basta inicializar a máquina virtual:
 
+`vagrant init ubuntu/trusty64`
+
 `vagrant up`
 
 Para acessar a máquina basta digitar:
 
 `vagrant ssh`
+
