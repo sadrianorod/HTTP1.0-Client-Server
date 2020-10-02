@@ -1,0 +1,6 @@
+project(LAB2CES35)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -pthread -std=c++11 -O2")
+
+add_executable(socketClient socketclient.cpp)
+add_executable(socketServer socketserver.cpp)
