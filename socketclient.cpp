@@ -7,7 +7,7 @@
 #define PORT 8080 //Select other Port if necessary
 
 
-int client(char *message, int port){
+int client(const char *message, int port){
 
 	//Initializing vars
 	int sock = 0, valread; 
@@ -38,7 +38,7 @@ int client(char *message, int port){
 		printf("\nConnection Failed \n"); 
 		return -1; 
 	} 
-	
+
 	send(sock , message , strlen(message) , 0 ); 
 	printf("Message was sent\n"); 
 	valread = read( sock , buffer, 1024); 
@@ -50,10 +50,9 @@ int client(char *message, int port){
 int main(int argc, char const *argv[]) 
 {	
 	int ans = 0;
-	char* message = "OLÁ MUNDO";
-	ans = client(message,PORT);
+	ans = client("Hello World!",PORT);
 	if(ans != 1){
-		printf("Error\n");
+		perror("Error\n");
 	}
 	return 0; 
 } 
