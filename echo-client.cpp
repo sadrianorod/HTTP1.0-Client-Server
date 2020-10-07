@@ -199,7 +199,7 @@ int main(int argc, char* argv[]) {
 		  token2 = strtok(NULL, "\n");
 		  if (token2 == NULL && ok){
 			  ss.str("");
-			  ss << "file" << r << ".txt";
+			  ss << object[r];
 			  std::fstream f(ss.str().c_str(), std::fstream::out);
 			  f << token;
 			  f.close();
