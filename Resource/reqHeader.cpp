@@ -6,7 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
-#include "Utils.cpp"
+#include "Utils.h"
 
 ReqHeader::ReqHeader() : method(UNSUPPORTED), status(200) {}
 

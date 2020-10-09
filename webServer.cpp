@@ -115,7 +115,7 @@ int main(int argc, char*argv[])
 
         //TODO: Manage multithreading here
         //-----------------
-
+        serviceRequest(connection, resource);
 
         //--------
 
