@@ -8,13 +8,12 @@
 #include <iostream>
 #include "Utils.h"
 
-ReqHeader::ReqHeader() : method(UNSUPPORTED), status(200) {}
+ReqHeader::ReqHeader() : method(UNSUPPORTED), status(200) {
+}
 
 int ReqHeader::parseHttpHeader(std::string & buffer) {
-    static int firstHeader = 1;
 
-    std::cout << firstHeader << buffer << std::endl;
-    if(firstHeader == 1) {
+    if(firstHeader) {
         if (buffer.substr(0, 4) == "GET ") {
             method = GET;
             buffer.erase(0, 4);
@@ -50,7 +49,7 @@ int ReqHeader::parseHttpHeader(std::string & buffer) {
         else
             type = SIMPLE;
 
-        firstHeader = 0;
+        firstHeader = false;
         return 0;
     }
 

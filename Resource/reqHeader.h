@@ -24,6 +24,7 @@ private:
     enum ReqMethod method;
     std::string referer;
     std::string userAgent;
+    bool firstHeader = true;
 
 };
 
