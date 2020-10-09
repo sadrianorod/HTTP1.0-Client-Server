@@ -4,8 +4,9 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include "RequestHeaders/reqHeader.h"
+#include "Resource/Resource.h"
 
-int serviceRequest(int connection)
+int serviceRequest(int connection, Resource & resourceManager)
 {
     ReqHeader reqInfo;
     int resource = 0;
@@ -15,9 +16,19 @@ int serviceRequest(int connection)
 
     if(reqInfo.status == 200)
     {
-        //TODO: Call check resource
-        if()
+        if((resource = resourceManager.checkResource(reqInfo)) < 0)
+        {
+            if(errno == EACCES)
+                reqInfo.status = 401;
+            else
+                reqInfo.status = 404;
+        }
     }
+
+    if(reqInfo.type == FULL)
+        //TODO: Call OutPut_HTTP_Headers
+
+    return 0;
 }
 
 
@@ -52,6 +63,7 @@ int main(int argc, char*argv[])
     std::string hostName(argv[1]);
     std::string port(argv[2]);
     std::string directory(argv[3]);
+    Resource resource(directory);
 
     if((sockListener = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {

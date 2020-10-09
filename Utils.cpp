@@ -4,7 +4,7 @@
 #include "bits/stdc++.h"
 #include <unistd.h>
 
-std::size_t readLine(int socket, std::string & buffer, std::size_t maxLen)
+std::size_t ReadLine(int socket, std::string & buffer, std::size_t maxLen)
 {
     std::size_t n, rc;
     char c;
@@ -34,11 +34,38 @@ std::size_t readLine(int socket, std::string & buffer, std::size_t maxLen)
     return n;
 }
 
-std::string trim(const std::string & str)
+std::string trimm(const std::string & str)
 {
     int size = str.size();
     while(!isalnum(str[size-1]) && size > 1)
         size --;
 
     return str.substr(0, size);
+}
+
+void WriteLine(int socket, std::string & str)
+{
+    std::size_t left = str.size();
+    std::size_t written;
+
+    char * buffer = new char[left];
+    strcpy(buffer, str.c_str());
+
+    while (left > 0)
+    {
+        if((written = write(socket, buffer, left)) <= 0)
+        {
+            if(errno == EINTR)
+                written = 0;
+            else
+            {
+                std::cerr << "Error writing line to socket\n";
+                exit(0);
+            }
+        }
+        left -= written;
+        buffer += written;
+    }
+
+    delete[] buffer;
 }

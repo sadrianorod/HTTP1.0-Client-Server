@@ -107,8 +107,8 @@ int ReqHeader::getRequest(int conn) {
         }
         else {
             //1024 is the maximum request line size
-            readLine(conn, buffer, 1024);
-            buffer = trim(buffer);
+            ReadLine(conn, buffer, 1024);
+            buffer = trimm(buffer);
 
             if(buffer.size() == 0)
                 break;

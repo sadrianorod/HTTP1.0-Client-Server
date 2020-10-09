@@ -18,12 +18,12 @@ public:
     ReqHeader();
     int status;
     enum ReqType type;
+    std::string resource;
 
 private:
     enum ReqMethod method;
     std::string referer;
     std::string userAgent;
-    std::string resource;
 
 };
 

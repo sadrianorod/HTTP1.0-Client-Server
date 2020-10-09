@@ -7,5 +7,7 @@ add_executable(socketClient socketclient.cpp)
 add_executable(socketServer socketserver.cpp)
 
 add_subdirectory("RequestHeaders")
-add_executable(webServer webServer.cpp Utils.cpp ${reqHeaders})
+add_subdirectory("Resource")
+add_executable(webServer webServer.cpp ${reqHeaders} ${resources})
 target_link_libraries(webServer RequestHeaders)
+target_link_libraries(webServer Resource)
