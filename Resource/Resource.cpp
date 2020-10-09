@@ -7,6 +7,13 @@
 #include <iostream>
 #include <fcntl.h>
 #include "Utils.h"
+#include <fstream>
+
+
+bool fexists(const char *filename) {
+  std::ifstream ifile(filename);
+  return (bool)ifile;
+}
 
 Resource::Resource(std::string path) {
     fileRoot = path;
@@ -36,8 +43,11 @@ int Resource::returnResource(int conn, int resource) {
 
 int Resource::checkResource(ReqHeader &info) {
     info.cleanUrl();
+    if (strcmp(fileRoot.data(),".") == 0){
+        fileRoot = "index.html";
+    }
+    fileRoot = "../Content/" + fileRoot;
     info.resource = fileRoot + info.resource;
-
     return open(fileRoot.data(), O_RDONLY);
 }
 
