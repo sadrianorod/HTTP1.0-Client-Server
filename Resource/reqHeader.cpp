@@ -6,7 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
-#include "../Utils.cpp"
+#include "Utils.cpp"
 
 ReqHeader::ReqHeader() : method(UNSUPPORTED), status(200) {}
 
@@ -99,7 +99,7 @@ int ReqHeader::getRequest(int conn) {
 
         if(rval < 0) {
             std::cerr << "Error in select at getRequest\n";
-            exit(0);
+            exit(1);
         }
         else if(rval == 0)
         {
@@ -107,8 +107,8 @@ int ReqHeader::getRequest(int conn) {
         }
         else {
             //1024 is the maximum request line size
-            ReadLine(conn, buffer, 1024);
-            buffer = trimm(buffer);
+            readLine(conn, buffer, 1024);
+            buffer = trim(buffer);
 
             if(buffer.size() == 0)
                 break;

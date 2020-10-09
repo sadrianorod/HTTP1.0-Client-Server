@@ -3,8 +3,9 @@
 #include <sys/types.h>        /*  socket types              */
 #include <netinet/in.h>
 #include <unistd.h>
-#include "RequestHeaders/reqHeader.h"
+#include "Resource/reqHeader.h"
 #include "Resource/Resource.h"
+#include "Resource/Utils.h"
 
 int serviceRequest(int connection, Resource & resourceManager)
 {
@@ -25,27 +26,45 @@ int serviceRequest(int connection, Resource & resourceManager)
         }
     }
 
-    if(reqInfo.type == FULL)
-        //TODO: Call OutPut_HTTP_Headers
+    //if(reqInfo.type == FULL)
+        //outputHttpHeaders(connection, reqInfo.status);
+
+    if(reqInfo.status == 200)
+    {
+        if(resourceManager.returnResource(connection, resource))
+        {
+            std::cerr << "Could not return resource\n";
+            exit(1);
+        }
+        else
+            resourceManager.returnErrorMsg(connection, reqInfo);
+    }
+
+    if(resource > 0)
+        if(close(resource) < 0)
+        {
+            std::cerr << "Error closing resource\n";
+            exit(1);
+        }
 
     return 0;
 }
 
 
-void manageConnection(int connection, int socketListener)
+void manageConnection(int connection, int socketListener, Resource & resourceManager)
 {
     if(close(socketListener) < 0)
     {
         std::cerr << "Error closing socket on thread\n";
-        exit(0);
+        exit(1);
     }
 
-    //TODO:Call Service Request
+    serviceRequest(connection, resourceManager);
 
     if(close(connection) < 0)
     {
         std::cerr << "Error closing connection on thread\n";
-        exit(0);
+        exit(1);
     }
 }
 
@@ -58,7 +77,7 @@ int main(int argc, char*argv[])
     if(argc < 4)
     {
         std::cerr << "Not enough arguments!\n";
-        exit(0);
+        exit(1);
     }
     std::string hostName(argv[1]);
     std::string port(argv[2]);
@@ -68,7 +87,7 @@ int main(int argc, char*argv[])
     if((sockListener = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         std::cerr << "Could no create sock listener\n";
-        exit(0);
+        exit(1);
     }
 
     servAddr.sin_family = AF_INET;
@@ -78,7 +97,7 @@ int main(int argc, char*argv[])
     if(bind(sockListener, (sockaddr * ) &servAddr, sizeof(servAddr)) < 0)
     {
         std::cerr << "Could not bind socket\n";
-        exit(0);
+        exit(1);
     }
 
     if(listen(sockListener, 1024) < 0)
@@ -91,7 +110,7 @@ int main(int argc, char*argv[])
         if((connection = accept(sockListener, NULL, NULL)) < 0)
         {
             std::cerr << "Could no accept connection\n";
-            exit(0);
+            exit(1);
         }
 
         //TODO: Manage multithreading here
@@ -103,7 +122,7 @@ int main(int argc, char*argv[])
         if(close(connection) < 0)
         {
             std::cerr << "Error closing socket\n";
-            exit(0);
+            exit(1);
         }
     }
 

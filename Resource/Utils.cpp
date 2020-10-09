@@ -1,10 +1,11 @@
 //
 // Created by lucas on 08/10/2020.
 //
-#include "bits/stdc++.h"
 #include <unistd.h>
+#include "Utils.h"
 
-std::size_t ReadLine(int socket, std::string & buffer, std::size_t maxLen)
+
+std::size_t readLine(int socket, std::string & buffer, std::size_t maxLen)
 {
     std::size_t n, rc;
     char c;
@@ -27,14 +28,14 @@ std::size_t ReadLine(int socket, std::string & buffer, std::size_t maxLen)
             if(errno == EINTR)
                 continue;
             std::cerr << "Error reading line\n";
-            exit(0);
+            exit(1);
         }
     }
 
     return n;
 }
 
-std::string trimm(const std::string & str)
+std::string trim(const std::string & str)
 {
     int size = str.size();
     while(!isalnum(str[size-1]) && size > 1)
@@ -43,7 +44,7 @@ std::string trimm(const std::string & str)
     return str.substr(0, size);
 }
 
-void WriteLine(int socket, std::string & str)
+void writeLine(int socket, std::string & str)
 {
     std::size_t left = str.size();
     std::size_t written;
@@ -60,7 +61,7 @@ void WriteLine(int socket, std::string & str)
             else
             {
                 std::cerr << "Error writing line to socket\n";
-                exit(0);
+                exit(1);
             }
         }
         left -= written;
@@ -68,4 +69,13 @@ void WriteLine(int socket, std::string & str)
     }
 
     delete[] buffer;
+}
+
+void outputHttpHeaders(int conn, int status)
+{
+    std::string line = "HTTP/1.0 " + std::to_string(status) + " OK\r\n"
+            + "Server: Tanaka's server\r\n"
+            + "Content-Type: text/html\r\n"
+            + "\r\n";
+    writeLine(conn, line);
 }
