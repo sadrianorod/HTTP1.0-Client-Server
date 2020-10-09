@@ -17,12 +17,9 @@ int serviceRequest(int connection, Resource & resourceManager)
 
     if(reqInfo.status == 200)
     {
-        if((resource = resourceManager.checkResource(reqInfo)) < 0)
+        if(!resourceManager.checkResource(reqInfo))
         {
-            if(errno == EACCES)
-                reqInfo.status = 401;
-            else
-                reqInfo.status = 404;
+            reqInfo.status = 404;
         }
     }
 

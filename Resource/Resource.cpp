@@ -10,45 +10,47 @@
 #include <fstream>
 
 
-bool fexists(const char *filename) {
-  std::ifstream ifile(filename);
-  return (bool)ifile;
-}
 
 Resource::Resource(std::string path) {
     fileRoot = path;
 }
 
 int Resource::returnResource(int conn, int resource) {
-    char c;
-    int i;
+    file.seekg(0, std::ios_base::end);
+    std::size_t fileSize = file.tellg(); //Tamanho do arquivo em bytes!
+    file.seekg(0, std::ios_base::beg);
 
-    while((i = read(resource, &c, 1)))
+    std::vector<char> buffer;
+    buffer.reserve(fileSize);
+    std::copy(std::istreambuf_iterator<char>(file),
+            std::istreambuf_iterator<char>(),
+                    std::back_inserter(buffer));
+
+    for(std::size_t i=0; i<fileSize; i++)
     {
-        if(i<0)
+        if(write(conn, &buffer[i], 1) < 1)
         {
             std::cerr << "Error reading file\n";
             exit(1);
         }
-
-        if(write(conn, &c, 1) < 1)
-        {
-            std::cerr << "Error sending file\n";
-            exit(1);
-        }
     }
 
+
+    file.close();
     return 0;
 }
 
-int Resource::checkResource(ReqHeader &info) {
+bool Resource::checkResource(ReqHeader &info) {
     info.cleanUrl();
-    if (strcmp(fileRoot.data(),".") == 0){
-        fileRoot = "index.html";
-    }
-    fileRoot = "../Content/" + fileRoot;
     info.resource = fileRoot + info.resource;
-    return open(fileRoot.data(), O_RDONLY);
+    file.open(info.resource);
+    if(file.is_open())
+        return true;
+
+    file.open(info.resource + "/index.html");
+    if(file.is_open())
+        return true;
+    return false;
 }
 
 void Resource::returnErrorMsg(int conn, ReqHeader &info) {

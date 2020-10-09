@@ -3,6 +3,7 @@
 //
 
 #include <string>
+#include <fstream>
 #include "reqHeader.h"
 
 #ifndef LAB2CES35_RESOURCE_H
@@ -12,12 +13,13 @@ class Resource
 {
 public:
     int returnResource(int conn, int resource);
-    int checkResource(ReqHeader & info);
+    bool checkResource(ReqHeader & info);
     void returnErrorMsg(int conn, ReqHeader & info);
     explicit Resource(std::string path);
 
 private:
     std::string fileRoot;
+    std::fstream file;
 };
 
 #endif //LAB2CES35_RESOURCE_H

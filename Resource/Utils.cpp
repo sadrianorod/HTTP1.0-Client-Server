@@ -99,7 +99,6 @@ void outputHttpHeaders(int conn, int status)
 {
     std::string line = "HTTP/1.0 " + std::to_string(status) + " " + getStatusMessage(status) + "\r\n"
             + "Server: Tanaka's server\r\n"
-            + "Content-Type: text/html\r\n"
             + "\r\n";
     writeLine(conn, line);
 }
