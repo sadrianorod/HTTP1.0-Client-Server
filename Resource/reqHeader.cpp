@@ -13,6 +13,7 @@ ReqHeader::ReqHeader() : method(UNSUPPORTED), status(200) {}
 int ReqHeader::parseHttpHeader(std::string & buffer) {
     static int firstHeader = 1;
 
+    std::cout << firstHeader << buffer << std::endl;
     if(firstHeader == 1) {
         if (buffer.substr(0, 4) == "GET ") {
             method = GET;
@@ -36,6 +37,7 @@ int ReqHeader::parseHttpHeader(std::string & buffer) {
             j++;
 
         if (j == i) {
+            std::cout << "foi 400\n";
             status = 400;
             return -1;
         }
@@ -58,6 +60,7 @@ int ReqHeader::parseHttpHeader(std::string & buffer) {
         i++;
     if(i == size)
     {
+        std::cout << "400 de novo\n";
         status = 400;
         return -1;
     }
@@ -107,16 +110,21 @@ int ReqHeader::getRequest(int conn) {
         }
         else {
             //1024 is the maximum request line size
-            readLine(conn, buffer, 1024);
+            buffer = "";
+            readLine(conn, buffer, 1023);
             buffer = trim(buffer);
 
-            if(buffer.size() == 0)
+            if(buffer.empty())
+                break;
+
+            if(buffer[0] == '\n' || buffer[0] == '\r')
                 break;
 
             if(parseHttpHeader(buffer))
                 break;
         }
     } while (type != SIMPLE);
+
 
     return 0;
 }
