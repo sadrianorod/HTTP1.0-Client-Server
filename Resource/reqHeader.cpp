@@ -36,7 +36,6 @@ int ReqHeader::parseHttpHeader(std::string & buffer) {
             j++;
 
         if (j == i) {
-            std::cout << "foi 400\n";
             status = 400;
             return -1;
         }
@@ -59,7 +58,6 @@ int ReqHeader::parseHttpHeader(std::string & buffer) {
         i++;
     if(i == size)
     {
-        std::cout << "400 de novo\n";
         status = 400;
         return -1;
     }
