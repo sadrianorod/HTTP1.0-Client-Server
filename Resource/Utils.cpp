@@ -38,7 +38,12 @@ std::size_t readLine(int socket, std::string & buffer, std::size_t maxLen)
 std::string trim(const std::string & str)
 {
     int size = str.size();
-    while(!isalnum(str[size-1]) && size > 1)
+    while((str[size-1] == '\n' ||
+        str[size-1] == '\t' ||
+        str[size-1] == '\r' ||
+        str[size-1] == '\0' ||
+        str[size-1] == ' ')
+    && size > 1)
         size --;
 
     return str.substr(0, size);
