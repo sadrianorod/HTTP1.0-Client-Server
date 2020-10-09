@@ -26,8 +26,8 @@ int serviceRequest(int connection, Resource & resourceManager)
         }
     }
 
-    //if(reqInfo.type == FULL)
-        //outputHttpHeaders(connection, reqInfo.status);
+    if(reqInfo.type == FULL)
+        outputHttpHeaders(connection, reqInfo.status);
 
     if(reqInfo.status == 200)
     {
