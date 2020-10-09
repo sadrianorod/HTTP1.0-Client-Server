@@ -72,11 +72,30 @@ void writeLine(int socket, std::string & str)
     delete[] buffer;
 }
 
+std::string getStatusMessage(int status)
+{
+    switch (status) {
+        case 200:
+            return "OK";
+        case 400:
+            return "Bad Request";
+        case 401:
+            return "Unauthorized";
+        case 404:
+            return "Not Found";
+        case 501:
+            return "Not Implemented";
+        default:
+            return "Unknown";
+    }
+}
+
 void outputHttpHeaders(int conn, int status)
 {
-    std::string line = "HTTP/1.0 " + std::to_string(status) + " OK\r\n"
+    std::string line = "HTTP/1.0 " + std::to_string(status) + " " + getStatusMessage(status) + "\r\n"
             + "Server: Tanaka's server\r\n"
             + "Content-Type: text/html\r\n"
             + "\r\n";
     writeLine(conn, line);
 }
+
