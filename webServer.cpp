@@ -27,7 +27,9 @@ int serviceRequest(int connection, Resource & resourceManager)
     }
 
     if(reqInfo.type == FULL)
+    {
         outputHttpHeaders(connection, reqInfo.status);
+    }
 
     if(reqInfo.status == 200)
     {
@@ -36,9 +38,9 @@ int serviceRequest(int connection, Resource & resourceManager)
             std::cerr << "Could not return resource\n";
             exit(1);
         }
-        else
-            resourceManager.returnErrorMsg(connection, reqInfo);
     }
+    else
+        resourceManager.returnErrorMsg(connection, reqInfo);
 
     if(resource > 0)
         if(close(resource) < 0)
