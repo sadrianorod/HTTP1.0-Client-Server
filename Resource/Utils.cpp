@@ -51,10 +51,11 @@ void writeLine(int socket, std::string & str)
 
     char * buffer = new char[left];
     strcpy(buffer, str.c_str());
+    const char * ctePtr = buffer;
 
     while (left > 0)
     {
-        if((written = write(socket, buffer, left)) <= 0)
+        if((written = write(socket, ctePtr, left)) <= 0)
         {
             if(errno == EINTR)
                 written = 0;
@@ -65,7 +66,7 @@ void writeLine(int socket, std::string & str)
             }
         }
         left -= written;
-        buffer += written;
+        ctePtr += written;
     }
 
     delete[] buffer;
