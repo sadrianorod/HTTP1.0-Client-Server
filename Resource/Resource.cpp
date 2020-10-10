@@ -15,7 +15,7 @@ Resource::Resource(std::string path) {
     fileRoot = path;
 }
 
-int Resource::returnResource(int conn, int resource) {
+int Resource::returnResource(int conn) {
     file.seekg(0, std::ios_base::end);
     std::size_t fileSize = file.tellg(); //Tamanho do arquivo em bytes!
     file.seekg(0, std::ios_base::beg);
@@ -30,8 +30,8 @@ int Resource::returnResource(int conn, int resource) {
     {
         if(write(conn, &buffer[i], 1) < 1)
         {
-            std::cerr << "Error reading file\n";
-            exit(1);
+            std::cerr << "Error sending file\n";
+            break;
         }
     }
 

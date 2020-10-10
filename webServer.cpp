@@ -7,17 +7,16 @@
 #include "Resource/Resource.h"
 #include "Resource/Utils.h"
 
-int serviceRequest(int connection, Resource & resourceManager)
+int serviceRequest(int connection, std::shared_ptr<Resource> & resourceManager)
 {
     ReqHeader reqInfo;
-    int resource = 0;
 
     if(reqInfo.getRequest(connection) < 0)
         return -1;
 
     if(reqInfo.status == 200)
     {
-        if(!resourceManager.checkResource(reqInfo))
+        if(!resourceManager->checkResource(reqInfo))
         {
             reqInfo.status = 404;
         }
@@ -30,33 +29,22 @@ int serviceRequest(int connection, Resource & resourceManager)
 
     if(reqInfo.status == 200)
     {
-        if(resourceManager.returnResource(connection, resource))
+        if(resourceManager->returnResource(connection))
         {
             std::cerr << "Could not return resource\n";
             exit(1);
         }
     }
     else
-        resourceManager.returnErrorMsg(connection, reqInfo);
+        resourceManager->returnErrorMsg(connection, reqInfo);
 
-    if(resource > 0)
-        if(close(resource) < 0)
-        {
-            std::cerr << "Error closing resource\n";
-            exit(1);
-        }
 
     return 0;
 }
 
 
-void manageConnection(int connection, int socketListener, Resource & resourceManager)
+void manageConnection(int connection, int socketListener, std::shared_ptr<Resource> resourceManager)
 {
-    if(close(socketListener) < 0)
-    {
-        std::cerr << "Error closing socket on thread\n";
-        exit(1);
-    }
 
     serviceRequest(connection, resourceManager);
 
@@ -81,7 +69,6 @@ int main(int argc, char*argv[])
     std::string hostName(argv[1]);
     std::string port(argv[2]);
     std::string directory(argv[3]);
-    Resource resource(directory);
 
     if((sockListener = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
@@ -108,21 +95,15 @@ int main(int argc, char*argv[])
     {
         if((connection = accept(sockListener, NULL, NULL)) < 0)
         {
-            std::cerr << "Could no accept connection\n";
+            std::cerr << "Could not accept connection\n";
             exit(1);
         }
 
-        //TODO: Manage multithreading here
-        //-----------------
-        serviceRequest(connection, resource);
 
-        //--------
+        std::shared_ptr<Resource> tPtr = std::make_shared<Resource>(directory);
+        std::thread t1(manageConnection, connection, sockListener, tPtr);
+        t1.detach();
 
-        if(close(connection) < 0)
-        {
-            std::cerr << "Error closing socket\n";
-            exit(1);
-        }
     }
 
 

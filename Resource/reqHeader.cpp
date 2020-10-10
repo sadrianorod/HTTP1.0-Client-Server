@@ -82,6 +82,7 @@ int ReqHeader::parseHttpHeader(std::string & buffer) {
 }
 
 int ReqHeader::getRequest(int conn) {
+
     std::string buffer = "";
     int rval;
     fd_set fds;
