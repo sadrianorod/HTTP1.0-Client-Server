@@ -43,7 +43,7 @@ int serviceRequest(int connection, std::shared_ptr<Resource> & resourceManager)
 }
 
 
-void manageConnection(int connection, int socketListener, std::shared_ptr<Resource> resourceManager)
+void manageConnection(int connection, std::shared_ptr<Resource> resourceManager)
 {
 
     serviceRequest(connection, resourceManager);
@@ -101,7 +101,7 @@ int main(int argc, char*argv[])
 
 
         std::shared_ptr<Resource> tPtr = std::make_shared<Resource>(directory);
-        std::thread t1(manageConnection, connection, sockListener, tPtr);
+        std::thread t1(manageConnection, connection, tPtr);
         t1.detach();
 
     }
