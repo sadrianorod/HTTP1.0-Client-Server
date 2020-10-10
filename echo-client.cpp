@@ -95,7 +95,6 @@ int main(int argc, char* argv[]) {
 		  }
 		  
 	  }
-	  std::cout << hostname[r] << " " << port[r] << " " << object[r] << std::endl;
 	  if (!ip){
 		  struct addrinfo hints;
 		  struct addrinfo* res;
@@ -122,8 +121,6 @@ int main(int argc, char* argv[]) {
 	  else {
 		  ipAddress[r] = hostname[r];
 	  }
-	  std::cout << "r " << r << std::endl;
-	  std::cout << ipAddress[r] << std::endl;
   
 	  struct sockaddr_in serverAddr;
 	  serverAddr.sin_family = AF_INET;
@@ -162,7 +159,7 @@ int main(int argc, char* argv[]) {
 	  // buffer eh o buffer de dados a ser recebido no socket com 20 bytes
 	  // input eh para a leitura do teclado
 	  // ss eh para receber o valor de volta
-	  char buf[5000] = {0};
+	  char buf[500000] = {0}, bufaux[5000] = {0};
 	  std::string input = "";
 	  std::stringstream ss;
 	  ss.str("");
@@ -181,31 +178,50 @@ int main(int argc, char* argv[]) {
 	  }
 
 	  // recebe no buffer uma certa quantidade de bytes ate 20 
-	  int l = recv(sockfd, buf, 5000, 0);
+	  int l = recv(sockfd, bufaux, 5000, 0);
+	  while (l != 0){
+		  strcat(buf, bufaux);
+		  l = recv(sockfd, bufaux, 5000, 0);
+	  }
 	  if (l == -1) {
 		perror("recv");
 		return 5;
 	  }
-	  std::cout << "l " << l << std::endl;
-	  char *token = NULL, *token2;
+	  printf("%s\n", buf);
+	  char *token = NULL;
+	  int help = 0, pos = 0;
+	  for (int i = 0; i < (int)strlen(buf); i++){
+		  if (buf[i] == '\r' && help == 0)
+			  help = 1;
+		  else if (buf[i] == '\n' && help == 1)
+			  help = 2;
+		  else if (buf[i] == '\r' && help == 2)
+			  help = 3;
+		  else if (buf[i] == '\n' && help == 3){
+			  pos = i+1;
+			  break;
+		  }
+		  else
+			  help = 0;
+	  }
+	  char* testt = buf + pos;
 	  token = strtok(buf, "\n");
 	  std::string parse_aux = token;
-	  std::cout << parse_aux << std::endl;
 	  bool ok = false;
 	  if (parse_aux.substr(9, 3) == "200")
 		  ok = true;
-	  while (token) {
-		  printf("Current token: %s\n", token);
-		  token2 = strtok(NULL, "\n");
-		  if (token2 == NULL && ok){
-			  ss.str("");
-			  ss << object[r];
-			  std::fstream f(ss.str().c_str(), std::fstream::out);
-			  f << token;
-			  f.close();
-			  printf("len %lu\n", strlen(token));
-		  }
-		  token = token2;
+	  ss.str("");
+	  if (object[r] == "/")
+		  ss << "index.html";
+	  else{
+		  object[r].erase(0, 1);
+		  ss << object[r];
+	  }
+	  if (ok){
+		  FILE* f;
+		  f = fopen(ss.str().c_str(), "wb");
+		  fwrite(testt, sizeof(char), strlen(testt), f);
+		  fclose(f);
 	  }
 
 
