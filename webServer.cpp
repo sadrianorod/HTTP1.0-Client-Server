@@ -80,6 +80,13 @@ int main(int argc, char*argv[])
     servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servAddr.sin_port = htons(std::stoi(port));
 
+    int yes = 1;
+    if(setsockopt(sockListener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1)
+    {
+        std::cerr << "Error setting socket options\n";
+        exit(1);
+    }
+
     if(bind(sockListener, (sockaddr * ) &servAddr, sizeof(servAddr)) < 0)
     {
         std::cerr << "Could not bind socket\n";
