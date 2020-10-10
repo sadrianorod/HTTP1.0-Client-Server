@@ -3,6 +3,8 @@
 #include <sys/types.h>        /*  socket types              */
 #include <netinet/in.h>
 #include <unistd.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 #include "Resource/reqHeader.h"
 #include "Resource/Resource.h"
 #include "Resource/Utils.h"
@@ -55,6 +57,20 @@ void manageConnection(int connection, std::shared_ptr<Resource> resourceManager)
     }
 }
 
+char * getLocalIp(std::string & hostName)
+{
+    hostent * hostEntry = nullptr;
+    char * ipBuffer;
+    hostEntry = gethostbyname(hostName.data());
+    if(hostEntry == nullptr)
+    {
+        std::cerr << "Invalid host name\n";
+        exit(1);
+    }
+    ipBuffer = inet_ntoa(*(in_addr*) hostEntry->h_addr_list[0]);
+
+    return ipBuffer;
+}
 
 int main(int argc, char*argv[])
 {
@@ -70,6 +86,7 @@ int main(int argc, char*argv[])
     std::string port(argv[2]);
     std::string directory(argv[3]);
 
+    char * ipAddr = getLocalIp(hostName);
     if((sockListener = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         std::cerr << "Could no create sock listener\n";
@@ -77,7 +94,8 @@ int main(int argc, char*argv[])
     }
 
     servAddr.sin_family = AF_INET;
-    servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    //servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    servAddr.sin_addr.s_addr = inet_addr(ipAddr);//htonl(INADDR_ANY);
     servAddr.sin_port = htons(std::stoi(port));
 
     int yes = 1;
@@ -89,7 +107,7 @@ int main(int argc, char*argv[])
 
     if(bind(sockListener, (sockaddr * ) &servAddr, sizeof(servAddr)) < 0)
     {
-        std::cerr << "Could not bind socket\n";
+        std::cerr << "Could not bind socket address or port\n";
         exit(1);
     }
 

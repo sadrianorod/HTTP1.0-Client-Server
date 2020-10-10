@@ -13,6 +13,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 add_executable(socketClient socketclient.cpp)
 add_executable(socketServer socketserver.cpp)
+add_executable(ipconf ipconf.cpp)
 
 add_subdirectory("Resource")
 add_executable(webServer webServer.cpp ${resources})
