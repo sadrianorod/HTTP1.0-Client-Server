@@ -16,9 +16,6 @@ Resource::Resource(std::string path) {
 }
 
 int Resource::returnResource(int conn) {
-    file.seekg(0, std::ios_base::end);
-    std::size_t fileSize = file.tellg(); //Tamanho do arquivo em bytes!
-    file.seekg(0, std::ios_base::beg);
 
     std::vector<char> buffer;
     buffer.reserve(fileSize);
@@ -26,12 +23,27 @@ int Resource::returnResource(int conn) {
             std::istreambuf_iterator<char>(),
                     std::back_inserter(buffer));
 
-    for(std::size_t i=0; i<fileSize; i++)
+    std::size_t maxSize = 1 << 16;
+    char * ptr = reinterpret_cast<char*>(buffer.data());
+    std::size_t sent = 0;
+    bool failed = false;
+    while(sent + maxSize < fileSize)
     {
-        if(write(conn, &buffer[i], 1) < 1)
+        if(write(conn, ptr, maxSize) < 1)
         {
             std::cerr << "Error sending file\n";
+            failed = true;
             break;
+        }
+        sent += maxSize;
+        ptr += maxSize;
+    }
+
+    if(!failed && sent < fileSize)
+    {
+        if(write(conn, ptr, fileSize - sent) < 1)
+        {
+            std::cerr << "Error sending file\n";
         }
     }
 
@@ -40,17 +52,31 @@ int Resource::returnResource(int conn) {
     return 0;
 }
 
-bool Resource::checkResource(ReqHeader &info) {
+std::size_t Resource::checkResource(ReqHeader &info) {
     info.cleanUrl();
     info.resource = fileRoot + info.resource;
     file.open(info.resource);
     if(file.is_open())
-        return true;
+    {
+        setFileSize();
+        return fileSize;
+    }
+
 
     file.open(info.resource + "/index.html");
     if(file.is_open())
-        return true;
-    return false;
+    {
+        setFileSize();
+        return fileSize;
+    }
+
+    return 0;
+}
+
+void Resource::setFileSize() {
+    file.seekg(0, std::ios_base::end);
+    fileSize = file.tellg(); //Tamanho do arquivo em bytes!
+    file.seekg(0, std::ios_base::beg);
 }
 
 void Resource::returnErrorMsg(int conn, ReqHeader &info) {

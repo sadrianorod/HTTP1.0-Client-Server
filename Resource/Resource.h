@@ -13,13 +13,15 @@ class Resource
 {
 public:
     int returnResource(int conn);
-    bool checkResource(ReqHeader & info);
+    std::size_t  checkResource(ReqHeader & info);
     void returnErrorMsg(int conn, ReqHeader & info);
     explicit Resource(std::string path);
 
 private:
     std::string fileRoot;
     std::fstream file;
+    std::size_t fileSize;
+    void setFileSize();
 };
 
 #endif //LAB2CES35_RESOURCE_H

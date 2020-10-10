@@ -9,7 +9,7 @@
 std::size_t readLine(int socket, std::string & buffer, std::size_t maxLen);
 std::string trim(const std::string & str);
 void writeLine(int socket, std::string & str);
-void outputHttpHeaders(int conn, int status);
+void outputHttpHeaders(int conn, int status, std::size_t size);
 std::string getStatusMessage(int status);
 
 

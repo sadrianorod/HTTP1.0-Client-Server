@@ -95,10 +95,11 @@ std::string getStatusMessage(int status)
     }
 }
 
-void outputHttpHeaders(int conn, int status)
+void outputHttpHeaders(int conn, int status, std::size_t size)
 {
     std::string line = "HTTP/1.0 " + std::to_string(status) + " " + getStatusMessage(status) + "\r\n"
             + "Server: Tanaka's server\r\n"
+            + "Content-Length: " + std::to_string(size) + "\r\n"
             + "\r\n";
     writeLine(conn, line);
 }

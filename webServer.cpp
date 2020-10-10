@@ -10,13 +10,15 @@
 int serviceRequest(int connection, std::shared_ptr<Resource> & resourceManager)
 {
     ReqHeader reqInfo;
+    std::size_t size = 0;
 
     if(reqInfo.getRequest(connection) < 0)
         return -1;
 
     if(reqInfo.status == 200)
     {
-        if(!resourceManager->checkResource(reqInfo))
+        size = resourceManager->checkResource(reqInfo);
+        if(size == 0)
         {
             reqInfo.status = 404;
         }
@@ -24,7 +26,7 @@ int serviceRequest(int connection, std::shared_ptr<Resource> & resourceManager)
 
     if(reqInfo.type == FULL)
     {
-        outputHttpHeaders(connection, reqInfo.status);
+        outputHttpHeaders(connection, reqInfo.status, size);
     }
 
     if(reqInfo.status == 200)
