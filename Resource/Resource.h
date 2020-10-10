@@ -14,7 +14,7 @@ class Resource
 public:
     int returnResource(int conn);
     std::size_t  checkResource(ReqHeader & info);
-    void returnErrorMsg(int conn, ReqHeader & info);
+    std::string returnErrorMsg(int conn, ReqHeader & info);
     explicit Resource(std::string path);
 
 private:

@@ -54,8 +54,9 @@ void writeLine(int socket, std::string & str)
     std::size_t left = str.size();
     std::size_t written;
 
-    char * buffer = new char[left];
+    char * buffer = new char[left+1];
     strcpy(buffer, str.c_str());
+    buffer[left] = '\0';
     const char * ctePtr = buffer;
 
     while (left > 0)

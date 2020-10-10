@@ -24,13 +24,14 @@ int serviceRequest(int connection, std::shared_ptr<Resource> & resourceManager)
         }
     }
 
-    if(reqInfo.type == FULL)
-    {
-        outputHttpHeaders(connection, reqInfo.status, size);
-    }
+
 
     if(reqInfo.status == 200)
     {
+        if(reqInfo.type == FULL)
+        {
+            outputHttpHeaders(connection, reqInfo.status, size);
+        }
         if(resourceManager->returnResource(connection))
         {
             std::cerr << "Could not return resource\n";
@@ -38,7 +39,14 @@ int serviceRequest(int connection, std::shared_ptr<Resource> & resourceManager)
         }
     }
     else
-        resourceManager->returnErrorMsg(connection, reqInfo);
+    {
+        std::string errorMsg = resourceManager->returnErrorMsg(connection, reqInfo);
+        if(reqInfo.type == FULL)
+        {
+            outputHttpHeaders(connection, reqInfo.status, errorMsg.size());
+        }
+        writeLine(connection, errorMsg);
+    }
 
 
     return 0;
