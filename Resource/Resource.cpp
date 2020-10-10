@@ -8,31 +8,41 @@
 #include <fcntl.h>
 #include "Utils.h"
 #include <fstream>
-
+#include <cmath>
 
 
 Resource::Resource(std::string path) {
     fileRoot = path;
 }
+ 
 
 int Resource::returnResource(int conn, int resource) {
     file.seekg(0, std::ios_base::end);
     std::size_t fileSize = file.tellg(); //Tamanho do arquivo em bytes!
     file.seekg(0, std::ios_base::beg);
-
     std::vector<char> buffer;
     buffer.reserve(fileSize);
     std::copy(std::istreambuf_iterator<char>(file),
             std::istreambuf_iterator<char>(),
                     std::back_inserter(buffer));
-
-    for(std::size_t i=0; i<fileSize; i++)
+   
+    std::size_t maxSize = 1 << 16;
+    char * ptr = reinterpret_cast<char*>(buffer.data());
+    std::size_t sent = 0;
+    while(sent + maxSize < fileSize)
     {
-        if(write(conn, &buffer[i], 1) < 1)
+        if(write(conn, ptr, maxSize) < 1)
         {
-            std::cerr << "Error reading file\n";
-            exit(1);
+            std::cerr << "Error sending file\n";
+            break;
         }
+        sent += maxSize;
+        ptr += maxSize;
+    }
+
+    if(sent < fileSize)
+    {
+        write(conn, ptr, fileSize - sent);
     }
 
 
@@ -40,17 +50,26 @@ int Resource::returnResource(int conn, int resource) {
     return 0;
 }
 
-bool Resource::checkResource(ReqHeader &info) {
+std::size_t Resource::checkResource(ReqHeader &info) {
     info.cleanUrl();
     info.resource = fileRoot + info.resource;
+    
     file.open(info.resource);
-    if(file.is_open())
-        return true;
+    if(file.is_open()){
+       file.seekg(0, std::ios_base::end);
+       std::size_t fileSize = file.tellg(); //Tamanho do arquivo em bytes!
+       file.seekg(0, std::ios_base::beg);
+       return fileSize;
+    }
 
     file.open(info.resource + "/index.html");
-    if(file.is_open())
-        return true;
-    return false;
+    if(file.is_open()){
+       file.seekg(0, std::ios_base::end);
+       std::size_t fileSize = file.tellg(); //Tamanho do arquivo em bytes!
+       file.seekg(0, std::ios_base::beg);
+       return fileSize;                  
+     }
+    return 0;
 }
 
 void Resource::returnErrorMsg(int conn, ReqHeader &info) {

@@ -13,7 +13,7 @@ class Resource
 {
 public:
     int returnResource(int conn, int resource);
-    bool checkResource(ReqHeader & info);
+    std::size_t checkResource(ReqHeader & info);
     void returnErrorMsg(int conn, ReqHeader & info);
     explicit Resource(std::string path);
 

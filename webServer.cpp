@@ -11,13 +11,15 @@ int serviceRequest(int connection, Resource & resourceManager)
 {
     ReqHeader reqInfo;
     int resource = 0;
-
+    std::size_t size = 0; 
+    
     if(reqInfo.getRequest(connection) < 0)
         return -1;
 
     if(reqInfo.status == 200)
-    {
-        if(!resourceManager.checkResource(reqInfo))
+    {   
+        size = resourceManager.checkResource(reqInfo);
+        if(size == 0)
         {
             reqInfo.status = 404;
         }
@@ -25,17 +27,18 @@ int serviceRequest(int connection, Resource & resourceManager)
 
     if(reqInfo.type == FULL)
     {
-        outputHttpHeaders(connection, reqInfo.status);
+        outputHttpHeaders(connection, reqInfo.status,size);
     }
 
     if(reqInfo.status == 200)
     {
-        if(resourceManager.returnResource(connection, resource))
+	if(resourceManager.returnResource(connection,resource))
         {
             std::cerr << "Could not return resource\n";
             exit(1);
         }
     }
+
     else
         resourceManager.returnErrorMsg(connection, reqInfo);
 
