@@ -50,9 +50,10 @@ char* getlocalhostIP()
     int hostname; 
   
     //Retrieve hostname 
-    hostname = gethostname(hostbuffer, sizeof(hostbuffer)); 
-    checkHostName(hostname); 
-  
+//    hostname = gethostname(hostbuffer, sizeof(hostbuffer));
+//    checkHostName(hostname);
+
+    strcpy(hostbuffer, "localhost");
     //Retrieve host information 
     host_entry = gethostbyname(hostbuffer); 
     checkHostEntry(host_entry); 
@@ -61,8 +62,14 @@ char* getlocalhostIP()
     //address into ASCII string 
     IPbuffer = inet_ntoa(*((struct in_addr*) host_entry->h_addr_list[0])); 
     
-    //printf("Hostname: %s\n", hostbuffer); 
-    //printf("Host IP: %s", IPbuffer); 
+    printf("Hostname: %s\n", hostbuffer);
+    printf("Host IP: %s", IPbuffer);
     
     return IPbuffer; 
-} 
+}
+
+int main()
+{
+    getlocalhostIP();
+    return 0;
+}

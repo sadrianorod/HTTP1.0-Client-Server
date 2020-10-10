@@ -16,7 +16,7 @@ Resource::Resource(std::string path) {
 }
  
 
-int Resource::returnResource(int conn, int resource) {
+int Resource::returnResource(int conn) {
     file.seekg(0, std::ios_base::end);
     std::size_t fileSize = file.tellg(); //Tamanho do arquivo em bytes!
     file.seekg(0, std::ios_base::beg);

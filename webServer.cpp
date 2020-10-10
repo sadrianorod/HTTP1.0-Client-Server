@@ -3,14 +3,15 @@
 #include <sys/types.h>        /*  socket types              */
 #include <netinet/in.h>
 #include <unistd.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 #include "Resource/reqHeader.h"
 #include "Resource/Resource.h"
 #include "Resource/Utils.h"
 
-int serviceRequest(int connection, Resource & resourceManager)
+int serviceRequest(int connection, std::shared_ptr<Resource> & resourceManager)
 {
     ReqHeader reqInfo;
-    int resource = 0;
     std::size_t size = 0; 
     
     if(reqInfo.getRequest(connection) < 0)
@@ -18,8 +19,9 @@ int serviceRequest(int connection, Resource & resourceManager)
 
     if(reqInfo.status == 200)
     {   
-        size = resourceManager.checkResource(reqInfo);
+        size = resourceManager->checkResource(reqInfo);
         if(size == 0)
+    {
         {
             reqInfo.status = 404;
         }
@@ -32,7 +34,7 @@ int serviceRequest(int connection, Resource & resourceManager)
 
     if(reqInfo.status == 200)
     {
-	if(resourceManager.returnResource(connection,resource))
+        if(resourceManager->returnResource(connection))
         {
             std::cerr << "Could not return resource\n";
             exit(1);
@@ -40,26 +42,15 @@ int serviceRequest(int connection, Resource & resourceManager)
     }
 
     else
-        resourceManager.returnErrorMsg(connection, reqInfo);
+        resourceManager->returnErrorMsg(connection, reqInfo);
 
-    if(resource > 0)
-        if(close(resource) < 0)
-        {
-            std::cerr << "Error closing resource\n";
-            exit(1);
-        }
 
     return 0;
 }
 
 
-void manageConnection(int connection, int socketListener, Resource & resourceManager)
+void manageConnection(int connection, std::shared_ptr<Resource> resourceManager)
 {
-    if(close(socketListener) < 0)
-    {
-        std::cerr << "Error closing socket on thread\n";
-        exit(1);
-    }
 
     serviceRequest(connection, resourceManager);
 
@@ -70,6 +61,20 @@ void manageConnection(int connection, int socketListener, Resource & resourceMan
     }
 }
 
+char * getLocalIp(std::string & hostName)
+{
+    hostent * hostEntry = nullptr;
+    char * ipBuffer;
+    hostEntry = gethostbyname(hostName.data());
+    if(hostEntry == nullptr)
+    {
+        std::cerr << "Invalid host name\n";
+        exit(1);
+    }
+    ipBuffer = inet_ntoa(*(in_addr*) hostEntry->h_addr_list[0]);
+
+    return ipBuffer;
+}
 
 int main(int argc, char*argv[])
 {
@@ -84,8 +89,8 @@ int main(int argc, char*argv[])
     std::string hostName(argv[1]);
     std::string port(argv[2]);
     std::string directory(argv[3]);
-    Resource resource(directory);
 
+    char * ipAddr = getLocalIp(hostName);
     if((sockListener = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         std::cerr << "Could no create sock listener\n";
@@ -93,12 +98,20 @@ int main(int argc, char*argv[])
     }
 
     servAddr.sin_family = AF_INET;
-    servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    //servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    servAddr.sin_addr.s_addr = inet_addr(ipAddr);//htonl(INADDR_ANY);
     servAddr.sin_port = htons(std::stoi(port));
+
+    int yes = 1;
+    if(setsockopt(sockListener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1)
+    {
+        std::cerr << "Error setting socket options\n";
+        exit(1);
+    }
 
     if(bind(sockListener, (sockaddr * ) &servAddr, sizeof(servAddr)) < 0)
     {
-        std::cerr << "Could not bind socket\n";
+        std::cerr << "Could not bind socket address or port\n";
         exit(1);
     }
 
@@ -111,21 +124,15 @@ int main(int argc, char*argv[])
     {
         if((connection = accept(sockListener, NULL, NULL)) < 0)
         {
-            std::cerr << "Could no accept connection\n";
+            std::cerr << "Could not accept connection\n";
             exit(1);
         }
 
-        //TODO: Manage multithreading here
-        //-----------------
-        serviceRequest(connection, resource);
 
-        //--------
+        std::shared_ptr<Resource> tPtr = std::make_shared<Resource>(directory);
+        std::thread t1(manageConnection, connection, tPtr);
+        t1.detach();
 
-        if(close(connection) < 0)
-        {
-            std::cerr << "Error closing socket\n";
-            exit(1);
-        }
     }
 
 
