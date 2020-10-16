@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
 	  // buffer eh o buffer de dados a ser recebido no socket com 20 bytes
 	  // input eh para a leitura do teclado
 	  // ss eh para receber o valor de volta
-	  char buf[500000] = {0}, bufaux[5000] = {0};
+	  char buf[5000000] = {0}, bufaux[50000] = {0};
 	  std::string input = "";
 	  std::stringstream ss;
 	  ss.str("");
@@ -178,10 +178,19 @@ int main(int argc, char* argv[]) {
 	  }
 
 	  // recebe no buffer uma certa quantidade de bytes ate 20 
-	  int l = recv(sockfd, bufaux, 5000, 0);
+	  char *auxxxx, *auxxxx2;
+	  int llllll = 0;
+	  int l = recv(sockfd, bufaux, 50000, 0);
 	  while (l != 0){
-		  strcat(buf, bufaux);
-		  l = recv(sockfd, bufaux, 5000, 0);
+		  auxxxx = buf + llllll;
+		  auxxxx2 = bufaux;
+		  for (int iii = 0; iii < l; iii++){
+			  *auxxxx = *auxxxx2;
+			  auxxxx++;
+			  auxxxx2++;
+		  }
+		  llllll += l;
+		  l = recv(sockfd, bufaux, 50000, 0);
 	  }
 	  if (l == -1) {
 		perror("recv");
@@ -220,7 +229,7 @@ int main(int argc, char* argv[]) {
 	  if (ok){
 		  FILE* f;
 		  f = fopen(ss.str().c_str(), "wb");
-		  fwrite(testt, sizeof(char), strlen(testt), f);
+		  fwrite(testt, sizeof(char), llllll - pos, f);
 		  fclose(f);
 	  }
 
