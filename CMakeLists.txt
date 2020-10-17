@@ -11,10 +11,9 @@ set(CMAKE_USE_PTHREADS_INIT 1)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 
-add_executable(socketClient socketclient.cpp)
-add_executable(socketServer socketserver.cpp)
-add_executable(echoClient echo-client.cpp)
+
+add_executable(web-client webClient.cpp)
 
 add_subdirectory("Resource")
-add_executable(webServer webServer.cpp ${resources})
-target_link_libraries(webServer Resource)
+add_executable(web-server webServer.cpp ${resources})
+target_link_libraries(web-server Resource)
