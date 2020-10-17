@@ -196,7 +196,7 @@ int main(int argc, char* argv[]) {
 		perror("recv");
 		return 5;
 	  }
-	  printf("%s\n", buf);
+	  //printf("%s\n", buf);
 	  char *token = NULL;
 	  int help = 0, pos = 0;
 	  for (int i = 0; i < (int)acc_length; i++){
