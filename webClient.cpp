@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
   //  char             sin_zero[8];  // zero this if you want to
   // };
   int port[19];
-  std::size_t aux1, aux2, aux3;
+  std::size_t httpFinder, portFinder, barFinder;
   std::string hostname[19], strAux[19], object[19], ipAddress[19];
   int j = 1;
   if (argc > 15){
@@ -41,26 +41,26 @@ int main(int argc, char* argv[]) {
   else {
 	  while (j < argc){
 		  strAux[j] = argv[j];
-		  aux1 = strAux[j].find("http");
-		  if (aux1 == std::string::npos){
-			  aux2 = strAux[j].find(":");
-			  aux3 = strAux[j].find("/");
-			  hostname[j] = strAux[j].substr(0, aux2);
+		  httpFinder = strAux[j].find("http");
+		  if (httpFinder == std::string::npos){
+			  portFinder = strAux[j].find(":");
+			  barFinder = strAux[j].find("/");
+			  hostname[j] = strAux[j].substr(0, portFinder);
 		  }
 		  else{
-			  aux1 += 4;
-			  aux1 = strAux[j].find("://", aux1);
-			  aux1 += 3;
-			  aux2 = strAux[j].find(":", aux1);
-			  aux3 = strAux[j].find("/", aux1);
-			  hostname[j] = strAux[j].substr(aux1, aux2 - aux1);
+			  httpFinder += 4;
+			  httpFinder = strAux[j].find("://", httpFinder);
+			  httpFinder += 3;
+			  portFinder = strAux[j].find(":", httpFinder);
+			  barFinder = strAux[j].find("/", httpFinder);
+			  hostname[j] = strAux[j].substr(httpFinder, portFinder - httpFinder);
 		  }
-		  if (aux2 != std::string::npos)
-			  port[j] = atoi(strAux[j].substr(aux2+1, aux3-aux2-1).c_str());
+		  if (portFinder != std::string::npos)
+			  port[j] = atoi(strAux[j].substr(portFinder+1, barFinder-portFinder-1).c_str());
 		  else
 			  port[j] = 80;
-		  if (aux3 != std::string::npos)
-			  object[j] = strAux[j].substr(aux3, strAux[j].size() - aux3);
+		  if (barFinder != std::string::npos)
+			  object[j] = strAux[j].substr(barFinder, strAux[j].size() - barFinder);
 		  else
 			  object[j] = "/";
 		  j++;
@@ -178,28 +178,28 @@ int main(int argc, char* argv[]) {
 	  }
 
 	  // recebe no buffer uma certa quantidade de bytes ate 20 
-	  char *auxxxx, *auxxxx2;
-	  int llllll = 0;
-	  int l = recv(sockfd, bufaux, 50000, 0);
-	  while (l != 0){
-		  auxxxx = buf + llllll;
-		  auxxxx2 = bufaux;
-		  for (int iii = 0; iii < l; iii++){
-			  *auxxxx = *auxxxx2;
-			  auxxxx++;
-			  auxxxx2++;
+	  char *bufWriterHelper, *bufWriterHelper2;
+	  int acc_length = 0;
+	  int temp_length = recv(sockfd, bufaux, 50000, 0);
+	  while (temp_length != 0){
+		  bufWriterHelper = buf + acc_length;
+		  bufWriterHelper2 = bufaux;
+		  for (int iii = 0; iii < temp_length; iii++){
+			  *bufWriterHelper = *bufWriterHelper2;
+			  bufWriterHelper++;
+			  bufWriterHelper2++;
 		  }
-		  llllll += l;
-		  l = recv(sockfd, bufaux, 50000, 0);
+		  acc_length += temp_length;
+		  temp_length = recv(sockfd, bufaux, 50000, 0);
 	  }
-	  if (l == -1) {
+	  if (temp_length == -1) {
 		perror("recv");
 		return 5;
 	  }
 	  printf("%s\n", buf);
 	  char *token = NULL;
 	  int help = 0, pos = 0;
-	  for (int i = 0; i < (int)strlen(buf); i++){
+	  for (int i = 0; i < (int)acc_length; i++){
 		  if (buf[i] == '\r' && help == 0)
 			  help = 1;
 		  else if (buf[i] == '\n' && help == 1)
@@ -223,13 +223,19 @@ int main(int argc, char* argv[]) {
 	  if (object[r] == "/")
 		  ss << "index.html";
 	  else{
-		  object[r].erase(0, 1);
+		  int bar = -1;
+		  for (int o = 0; o < (int) object[r].size(); o++)
+			  if (object[r][o] == '/')
+				  bar = o;
+		  if (bar == -1)
+			  printf("Deu ruim\n");
+		  object[r].erase(0, bar+1);
 		  ss << object[r];
 	  }
 	  if (ok){
 		  FILE* f;
 		  f = fopen(ss.str().c_str(), "wb");
-		  fwrite(testt, sizeof(char), llllll - pos, f);
+		  fwrite(testt, sizeof(char), acc_length - pos, f);
 		  fclose(f);
 	  }
 
