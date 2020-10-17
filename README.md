@@ -17,13 +17,13 @@ make
 ``` 
 
 Those commands will compile `web-server` and `web-client` and generate binary files into the `build` folder.
-To generate only one of those binaries, just do `make web-server` or `make webs-client`.
+To generate only one of those binaries, just do `make web-server` or `make web-client`.
 
 ## Binaries
 
 ### Server
 
-The web server servers pages and files through a TCP connection. Its invocation requires three arguments:
+The web server serves pages and files through a TCP connection. Its invocation requires three arguments:
 the server name, its port and the folder in which it will search for files. See the example below to start the program.
 
 ```[bash]
