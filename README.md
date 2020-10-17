@@ -1,6 +1,6 @@
 # Lab2CES35
 
-The repository for the computer networks class!
+This is the repository for the computer networks class assignment!
 Available [here](https://github.com/sadrianorod/Lab2CES35).
 
 ## Instructions for compiling
