@@ -1,5 +1,8 @@
 # Lab2CES35
 
+The repository for the computer networks class!
+Available [here](https://github.com/sadrianorod/Lab2CES35).
+
 ## Instructions for compiling
 
 Our project uses CMake as a build automation tool. We require version 3.10 or higher.
@@ -35,5 +38,5 @@ fetch. There is an example below of how to start the client.
 
 ```[bash]
 # ./web-client [URL] [URL]
-./web-client localhost:8080/file www.google.com
+./web-client www.google.com
 ```
