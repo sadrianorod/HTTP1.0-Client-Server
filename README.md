@@ -1,6 +1,7 @@
 # Lab2CES35
 
 This is the repository for the computer networks class assignment!
+We implemented a HTPP1.0 client and a server in C++.
 Available [here](https://github.com/sadrianorod/Lab2CES35).
 
 ## Instructions for compiling
@@ -30,6 +31,8 @@ the server name, its port and the folder in which it will search for files. See 
 # ./web-server [host] [port] [folder]
 ./web-server 127.0.0.1 8080 ../folder
 ```  
+The server looks for the request url path in the initialized directorty. For instance, the url ```127.0.0.1:8080/myfile/picture.jpg``` corresponds to a file ```picture.jpg``` inside the folder ```myfile``` and ```127.0.0.1:8080/folder``` returns the ```index.html``` file inside ```folder```.
+
 
 ### Client
 
