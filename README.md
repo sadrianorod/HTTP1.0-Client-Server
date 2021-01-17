@@ -1,4 +1,4 @@
-# Lab2CES35
+# HTTP1.0-Client-Server
 
 This is the repository for the computer networks class assignment!
 We implemented a HTPP1.0 client and a server in C++.
