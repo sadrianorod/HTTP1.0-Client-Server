@@ -2,7 +2,6 @@
 
 This is the repository for the computer networks class assignment!
 We implemented a HTPP1.0 client and a server in C++.
-Available [here](https://github.com/sadrianorod/Lab2CES35).
 
 ## Instructions for compiling
 
